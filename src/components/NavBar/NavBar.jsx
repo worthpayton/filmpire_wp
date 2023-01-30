@@ -83,7 +83,7 @@ const NavBar = () => {
                   style={{ width: 30, higth: 30 }}
                   alt="Profile"
                   // eslint-disable-next-line max-len
-                  src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fpixabay.com%2Fvectors%2Favatar-icon-placeholder-facebook-1577909%2F&psig=AOvVaw3c9i8k8cSShm3yZ3o81Q4d&ust=1674789709684000&source=images&cd=vfe&ved=0CA4QjRxqFwoTCNjqj_-j5PwCFQAAAAAdAAAAABAE"
+                  src={`https://www.themoviedb.org/t/p/w64_and_h64_face${user?.avatar?.tmbd?.avatar_path}`}
                 />
               </Button>
             )}
