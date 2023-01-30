@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useRef } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { CssBaseline } from '@mui/material';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Route, Switch } from 'react-router-dom';
 
 import useStyles from './styles';
+import useAlan from './Alan';
 
 // eslint-disable-next-line import/no-useless-path-segments
 import { Actors, MovieInformation, Movies, NavBar, Profile } from './';
 
 const App = () => {
   const classes = useStyles();
+  const alanBtnContainer = useRef();
+
+  useAlan();
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -24,7 +29,7 @@ const App = () => {
           <Route exact path="/actors/:id">
             <Actors />
           </Route>
-          <Route exact path="/">
+          <Route exact path={["/", "/approved"]}>
             <Movies />
           </Route>
           <Route exact path="/profile/:id">
@@ -32,6 +37,7 @@ const App = () => {
           </Route>
         </Switch>
       </main>
+      <div ref={alanBtnContainer} />
     </div>
   );
 };
