@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { fetchToken } from '../utils';
 import { ColorModeContext } from '../utils/ToggleColorMode';
-import { selectGenreOrCategory } from '../features/currentGenreOrCategory';
+import { selectGenreOrCategory, searchMovie } from '../features/currentGenreOrCategory';
 
 const useAlan = () => {
   const { setMode } = useContext(ColorModeContext);
@@ -15,7 +15,7 @@ const useAlan = () => {
   useEffect(() => {
     alanBtn({
       key: '028f5559f61bb3b4d35e663bd567babd2e956eca572e1d8b807a3e2338fdd0dc/stage',
-      onCommand: ({ command, mode, genres, genreOrCategory }) => {
+      onCommand: ({ command, mode, genres, genreOrCategory, query }) => {
         if (command === 'chooseGenre') {
           const foundGenre = genres.find((g) => g.name.toLowerCase() === genreOrCategory.toLowerCase());
           if (foundGenre) {
@@ -37,6 +37,8 @@ const useAlan = () => {
         } else if (command === 'logout') {
           localStorage.clear();
           history.push('/');
+        } else if (command === 'search') {
+          dispatch(searchMovie(query));
         }
       },
     });
