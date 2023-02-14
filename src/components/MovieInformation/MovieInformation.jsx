@@ -1,61 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Typography, Button, ButtonGroup, Grid, Box, CircularProgress, useMediaQuery, Rating } from '@mui/material';
-import { Movie as MovieIcon, Theaters, Language, PlusOne, Favorite, FavoriteBorderOutlined, Remove, ArrowBack } from '@mui/icons-material';
-import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  Typography,
+  Button,
+  ButtonGroup,
+  Grid,
+  Box,
+  CircularProgress,
+  useMediaQuery,
+  Rating,
+} from "@mui/material";
+import {
+  Movie as MovieIcon,
+  Theaters,
+  Language,
+  PlusOne,
+  Favorite,
+  FavoriteBorderOutlined,
+  Remove,
+  ArrowBack,
+} from "@mui/icons-material";
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 
-import { selectGenreOrCategory } from '../../features/currentGenreOrCategory';
-import useStyles from './styles';
-import genreIcons from '../../assets/genres';
-import { useGetListQuery, useGetMovieQuery, useGetRecommendationsQuery } from '../../services/TMDB';
-import { MovieList } from '..';
-import { userSelector } from '../../features/auth';
+import { selectGenreOrCategory } from "../../features/currentGenreOrCategory";
+import useStyles from "./styles";
+import genreIcons from "../../assets/genres";
+import {
+  useGetListQuery,
+  useGetMovieQuery,
+  useGetRecommendationsQuery,
+} from "../../services/TMDB";
+import { MovieList } from "..";
+import { userSelector } from "../../features/auth";
 
 const MovieInformation = () => {
+  // pulls user from redux
   const { user } = useSelector(userSelector);
+  // grabs id from react-router endpoint
   const { id } = useParams();
+  // imports styles from styles.js
   const classes = useStyles();
+  // imports dispatch from redux
   const dispatch = useDispatch();
+  // sets state for modal open
   const [open, setOpen] = useState(false);
 
+  // gets data from redux / api
   const { data, isFetching, error } = useGetMovieQuery(id);
-  const { data: favoriteMovies } = useGetListQuery({ listName: 'favorite/movies', accountId: user.id, sessionId: localStorage.getItem('session_id'), page: 1 });
-  const { data: watchlistMovies } = useGetListQuery({ listName: 'watchlist/movies', accountId: user.id, sessionId: localStorage.getItem('session_id'), page: 1 });
+  const { data: favoriteMovies } = useGetListQuery({
+    listName: "favorite/movies",
+    accountId: user.id,
+    sessionId: localStorage.getItem("session_id"),
+    page: 1,
+  });
+  const { data: watchlistMovies } = useGetListQuery({
+    listName: "watchlist/movies",
+    accountId: user.id,
+    sessionId: localStorage.getItem("session_id"),
+    page: 1,
+  });
 
-  const { data: recommendations, isFetching: isRecommendationFetching } = useGetRecommendationsQuery({ list: '/recommendations', movie_id: id });
+  const { data: recommendations, isFetching: isRecommendationFetching } =
+    useGetRecommendationsQuery({ list: "/recommendations", movie_id: id });
 
+  // sets state for film favoriting and watchlisting
   const [isMovieFavorited, setIsMovieFavorited] = useState(false);
   const [isMovieWatchlisted, setIsMovieWatchlisted] = useState(false);
 
+  // updates after favoriting
   useEffect(() => {
-    setIsMovieFavorited(!!favoriteMovies?.results?.find((movie) => movie?.id === data?.id));
+    setIsMovieFavorited(
+      !favoriteMovies?.results?.find((movie) => movie?.id === data?.id)
+    );
   }, [favoriteMovies, data]);
 
+  // updates after watchlisting
   useEffect(() => {
-    setIsMovieWatchlisted(!!watchlistMovies?.results?.find((movie) => movie?.id === data?.id));
+    setIsMovieWatchlisted(
+      !watchlistMovies?.results?.find((movie) => movie?.id === data?.id)
+    );
   }, [watchlistMovies, data]);
 
+  // sends favoriting action after click to TMDB profile on TMBD.org
   const addToFavorites = async () => {
-    await axios.post(`https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${process.env.REACT_APP_TMDB_KEY}&session_id=${localStorage.getItem('session_id')}`, {
-      media_type: 'movie',
-      media_id: id,
-      favorite: !isMovieFavorited,
-    });
+    await axios.post(
+      `https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${
+        process.env.REACT_APP_TMDB_KEY
+      }&session_id=${localStorage.getItem("session_id")}`,
+      {
+        media_type: "movie",
+        media_id: id,
+        favorite: !isMovieFavorited,
+      }
+    );
 
     setIsMovieFavorited((prev) => !prev);
   };
 
+  // sends watchlisting action after click to TMDB profile on TMBD.org
   const addToWatchlist = async () => {
-    await axios.post(`https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${process.env.REACT_APP_TMDB_KEY}&session_id=${localStorage.getItem('session_id')}`, {
-      media_type: 'movie',
-      media_id: id,
-      watchlist: !isMovieWatchlisted,
-    });
+    await axios.post(
+      `https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${
+        process.env.REACT_APP_TMDB_KEY
+      }&session_id=${localStorage.getItem("session_id")}`,
+      {
+        media_type: "movie",
+        media_id: id,
+        watchlist: !isMovieWatchlisted,
+      }
+    );
 
     setIsMovieWatchlisted((prev) => !prev);
   };
 
+  // displays loading indicator
   if (isFetching) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -64,6 +124,7 @@ const MovieInformation = () => {
     );
   }
 
+  // displays error page for fetching failure
   if (error) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -72,6 +133,7 @@ const MovieInformation = () => {
     );
   }
 
+  // displays film info page - retrieves all info via redux / api
   return (
     <Grid container className={classes.containerSpaceAround}>
       <Grid item sm={12} lg={4}>
@@ -83,7 +145,7 @@ const MovieInformation = () => {
       </Grid>
       <Grid item container direction="column" lg={7}>
         <Typography variant="h3" align="center" gutterBottom>
-          {data?.title} ({data?.release_date.split('-')[0]})
+          {data?.title} ({data?.release_date.split("-")[0]})
         </Typography>
         <Typography variant="h5" align="center" gutterBottom>
           {data?.tagline}
@@ -91,12 +153,17 @@ const MovieInformation = () => {
         <Grid item className={classes.containerSpaceAround}>
           <Box display="flex" align="center">
             <Rating readOnly value={data.vote_average / 2} />
-            <Typography variant="subtitle1" gutterBottom style={{ marginLeft: '10px' }}>
+            <Typography
+              variant="subtitle1"
+              gutterBottom
+              style={{ marginLeft: "10px" }}
+            >
               {data?.vote_average.toFixed(1)} /10
             </Typography>
           </Box>
           <Typography variant="h6" align="center" gutterBottom>
-            Runtime: {data?.runtime}min | Language: {data?.spoken_languages[0].name}
+            Runtime: {data?.runtime}min | Language:{" "}
+            {data?.spoken_languages[0].name}
           </Typography>
         </Grid>
         <Grid item className={classes.genresContainer}>
@@ -107,54 +174,114 @@ const MovieInformation = () => {
               to="/"
               onClick={() => dispatch(selectGenreOrCategory(genre.id))}
             >
-              <img src={genreIcons[genre.name.toLowerCase()]} className={classes.genreImage} height={30} />
+              <img
+                src={genreIcons[genre.name.toLowerCase()]}
+                className={classes.genreImage}
+                height={30}
+              />
               <Typography color="textPrimary" variant="subtitle1">
                 {genre?.name}
               </Typography>
             </Link>
           ))}
         </Grid>
-        <Typography variant="h5" gutterBottom style={{ marginTop: '10px' }}>
+        <Typography variant="h5" gutterBottom style={{ marginTop: "10px" }}>
           Overview
         </Typography>
-        <Typography style={{ marginBottom: '2rem' }}>
+        <Typography style={{ marginBottom: "2rem" }}>
           {data?.overview}
         </Typography>
         <Typography variant="h5" gutterBottom>
           Top Cast
         </Typography>
         <Grid item container spacing={2}>
-          {data && data.credits.cast.map((character, i) => (
-            character.profile_path && (
-            <Grid key={i} item xs={4} md={2} component={Link} to={`/actors/${character.id}`} style={{ textDecoration: 'none' }}>
-              <img className={classes.castImage} src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`} alt={character.name} />
-              <Typography color="textPrimary">{character?.name}</Typography>
-              <Typography color="textSecondary">
-                {character.character.split('/')[0]}
-              </Typography>
-            </Grid>
-            )
-          )).slice(0, 12)}
+          {data &&
+            data.credits.cast
+              .map(
+                (character, i) =>
+                  character.profile_path && (
+                    <Grid
+                      key={i}
+                      item
+                      xs={4}
+                      md={2}
+                      component={Link}
+                      to={`/actors/${character.id}`}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <img
+                        className={classes.castImage}
+                        src={`https://image.tmdb.org/t/p/w500/${character.profile_path}`}
+                        alt={character.name}
+                      />
+                      <Typography color="textPrimary">
+                        {character?.name}
+                      </Typography>
+                      <Typography color="textSecondary">
+                        {character.character.split("/")[0]}
+                      </Typography>
+                    </Grid>
+                  )
+              )
+              .slice(0, 12)}
         </Grid>
-        <Grid item container style={{ marginTop: '2rem' }}>
+        <Grid item container style={{ marginTop: "2rem" }}>
           <div className={classes.buttonsContainer}>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
               <ButtonGroup size="small" varient="outlined">
-                <Button target="_blank" rel="noopener noreferrer" href={data?.homepage} endIcon={<Language />}>Website</Button>
-                <Button target="_blank" rel="noopener noreferrer" href={`https://www.imdb/title/${data?.imdb_id}`} endIcon={<MovieIcon />}>IMDB</Button>
-                <Button rel="noopener noreferrer" onClick={() => setOpen(true)} href="#" endIcon={<Theaters />}>Trailer</Button>
+                <Button
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={data?.homepage}
+                  endIcon={<Language />}
+                >
+                  Website
+                </Button>
+                <Button
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://www.imdb/title/${data?.imdb_id}`}
+                  endIcon={<MovieIcon />}
+                >
+                  IMDB
+                </Button>
+                <Button
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(true)}
+                  href="#"
+                  endIcon={<Theaters />}
+                >
+                  Trailer
+                </Button>
               </ButtonGroup>
             </Grid>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
               <ButtonGroup size="medium" varient="outlined">
-                <Button onClick={addToFavorites} endIcon={isMovieFavorited ? <FavoriteBorderOutlined /> : <Favorite />}>
-                  {isMovieFavorited ? 'Unfavorite' : 'Favorite'}
+                <Button
+                  onClick={addToFavorites}
+                  endIcon={
+                    isMovieFavorited ? <FavoriteBorderOutlined /> : <Favorite />
+                  }
+                >
+                  {isMovieFavorited ? "Unfavorite" : "Favorite"}
                 </Button>
-                <Button onClick={addToWatchlist} endIcon={isMovieWatchlisted ? <Remove /> : <PlusOne />}>
+                <Button
+                  onClick={addToWatchlist}
+                  endIcon={isMovieWatchlisted ? <Remove /> : <PlusOne />}
+                >
                   Watchlist
                 </Button>
-                <Button endIcon={<ArrowBack />} sx={{ borderColor: 'primary.main' }}>
-                  <Typography style={{ textDecoration: 'none' }} component={Link} to="/" color="inherit" variant="subtitle2">
+                <Button
+                  endIcon={<ArrowBack />}
+                  sx={{ borderColor: "primary.main" }}
+                >
+                  <Typography
+                    style={{ textDecoration: "none" }}
+                    component={Link}
+                    to="/"
+                    color="inherit"
+                    variant="subtitle2"
+                  >
                     Back
                   </Typography>
                 </Button>
@@ -167,23 +294,30 @@ const MovieInformation = () => {
         <Typography variant="h3" gutterBottom align="center">
           You might also like
         </Typography>
-        {recommendations
-          ? <MovieList movies={recommendations} numberOfMovies={12} />
-          : <Box>Sorry, nothing was found.</Box>}
+        {recommendations ? (
+          <MovieList movies={recommendations} numberOfMovies={12} />
+        ) : (
+          <Box>Sorry, nothing was found.</Box>
+        )}
       </Box>
-      <Modal closeAfterTransition className={classes.modal} open={open} onClose={() => setOpen(false)}>
+      <Modal
+        closeAfterTransition
+        className={classes.modal}
+        open={open}
+        onClose={() => setOpen(false)}
+      >
         {data?.videos?.results?.length > 0 && (
-        <iframe
-          autoPlay
-          className={classes.video}
-          height="50%"
-          width="50%"
-          title="trailer"
-          src={`https://www.youtube.com/embed/${data.videos.results[0].key}`}
-          allow="autoplay"
-          allowFullScreen
-          frameBorder="0"
-        />
+          <iframe
+            autoPlay
+            className={classes.video}
+            height="50%"
+            width="50%"
+            title="trailer"
+            src={`https://www.youtube.com/embed/${data.videos.results[0].key}`}
+            allow="autoplay"
+            allowFullScreen
+            frameBorder="0"
+          />
         )}
       </Modal>
     </Grid>

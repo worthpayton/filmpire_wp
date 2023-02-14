@@ -1,22 +1,37 @@
-import React, { useState } from 'react';
-import { Typography, Button, ButtonGroup, Grid, Box, CircularProgress } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
-import { useHistory, useParams } from 'react-router-dom';
+import React, { useState } from "react";
+import {
+  Typography,
+  Button,
+  ButtonGroup,
+  Grid,
+  Box,
+  CircularProgress,
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useHistory, useParams } from "react-router-dom";
 
-import useStyles from './styles';
-import { useGetActorCreditsQuery, useGetActorInfoQuery } from '../../services/TMDB';
-import { MovieList } from '..';
-import { Pagination } from '..';
+import useStyles from "./styles";
+import {
+  useGetActorCreditsQuery,
+  useGetActorInfoQuery,
+} from "../../services/TMDB";
+import { MovieList } from "..";
+import { Pagination } from "..";
 
 const Actors = () => {
+  // retreive id and history from react-router
   const { id } = useParams();
   const history = useHistory();
+  // retrieve styles
   const classes = useStyles();
+  // state for pagination
   const [page, setPage] = useState(1);
 
+  // redux data/state retreival
   const { data, isFetching, error } = useGetActorInfoQuery(id);
   const { data: movies } = useGetActorCreditsQuery({ id, page });
 
+  // loading image
   if (isFetching) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -25,15 +40,23 @@ const Actors = () => {
     );
   }
 
+  // error display
   if (error) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
-        <Button startIcon={<ArrowBack />} onClick={() => history.goBack()} color="primary">Go Back</Button>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => history.goBack()}
+          color="primary"
+        >
+          Go Back
+        </Button>
       </Box>
     );
   }
 
   return (
+    // displays grid of information on the actor page - includes links to IMDB and paginated films
     <>
       <Grid container spacing={3}>
         <Grid item lg={5} xl={4}>
@@ -43,7 +66,19 @@ const Actors = () => {
             alt={data.name}
           />
         </Grid>
-        <Grid item container direction="column" lg={7} xl={8} style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
+        <Grid
+          item
+          container
+          direction="column"
+          lg={7}
+          xl={8}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            flexDirection: "column",
+          }}
+        >
+          {/* Displays biographical information */}
           <Typography variant="h2" gutterbottom>
             {data?.name}
           </Typography>
@@ -51,13 +86,22 @@ const Actors = () => {
             Born: {new Date(data?.birthday).toDateString()}
           </Typography>
           <Typography variant="body2" align="justify" paragraph>
-            {data?.biography || 'No biography yet.'}
+            {data?.biography || "No biography yet."}
           </Typography>
           <Box marginTop="2rem" display="flex" justifyContent="space-around">
-            <Button variant="contained" color="primary" target="_blank" href={`https://www.imdb.com/name/${data?.imdb_id}`}>
+            <Button
+              variant="contained"
+              color="primary"
+              target="_blank"
+              href={`https://www.imdb.com/name/${data?.imdb_id}`}
+            >
               IMDB
             </Button>
-            <Button startIcon={<ArrowBack />} onClick={() => history.goBack()} color="primary">
+            <Button
+              startIcon={<ArrowBack />}
+              onClick={() => history.goBack()}
+              color="primary"
+            >
               Back
             </Button>
           </Box>
@@ -67,8 +111,13 @@ const Actors = () => {
         <Typography variant="h2" gutterbottom align="center">
           Movies
         </Typography>
+        {/* Displays films */}
         {movies && <MovieList movies={movies} numberOfMovies={12} />}
-        <Pagination currentPage={page} setPage={setPage} totalPages={movies?.total_pages} />
+        <Pagination
+          currentPage={page}
+          setPage={setPage}
+          totalPages={movies?.total_pages}
+        />
       </Box>
     </>
   );

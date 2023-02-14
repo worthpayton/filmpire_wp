@@ -1,15 +1,22 @@
-import React from 'react';
-import { Box, Typography, Card, CardContent, CardMedia } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Box, Typography, Card, CardContent, CardMedia } from "@mui/material";
+import { Link } from "react-router-dom";
 
-import useStyles from './styles';
+import useStyles from "./styles";
 
+// featured movie hero component
 const FeaturedMovie = ({ movie }) => {
+  // imports styles from styles.js
   const classes = useStyles();
-
+  // returns nothing if no movie available
   if (!movie) return null;
   return (
-    <Box component={Link} to={`/movie/${movie.id}`} className={classes.featuredCardContainer}>
+    // Displays hero with relavent information
+    <Box
+      component={Link}
+      to={`/movie/${movie.id}`}
+      className={classes.featuredCardContainer}
+    >
       <Card className={classes.card} classes={{ root: classes.cardRoot }}>
         <CardMedia
           media="picture"
@@ -19,13 +26,17 @@ const FeaturedMovie = ({ movie }) => {
           className={classes.cardMedia}
         />
         <Box padding="20px">
-          <CardContent className={classes.cardContent} classes={{ root: classes.cardContentRoot }}>
-            <Typography variant="h5" gutterBottom>{movie.title}</Typography>
+          <CardContent
+            className={classes.cardContent}
+            classes={{ root: classes.cardContentRoot }}
+          >
+            <Typography variant="h5" gutterBottom>
+              {movie.title}
+            </Typography>
             <Typography variant="body2">{movie.overview}</Typography>
           </CardContent>
         </Box>
       </Card>
-
     </Box>
   );
 };
