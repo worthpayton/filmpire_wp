@@ -1,9 +1,10 @@
-import React from 'react';
-import { Grid } from '@mui/material';
+import React from "react";
+import { Grid } from "@mui/material";
 
-import useStyles from './styles';
-import { Movie } from '..';
+import useStyles from "./styles";
+import { Movie } from "..";
 
+// displays film list on the home page
 const MovieList = ({ movies, numberOfMovies, excludeFirst }) => {
   const classes = useStyles();
   const startFrom = excludeFirst ? 1 : 0;
